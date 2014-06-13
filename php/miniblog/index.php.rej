@@ -1,0 +1,10 @@
+--- /home/irvin/git/code/php/miniblog/index.php	2014-06-12 21:47:16.639074222 +0800
++++ miniblog/index.php	2014-06-13 23:35:11.107120613 +0800
+@@ -2,7 +2,6 @@
+ define('__ROOT__', dirname(__FILE__) . '/');
+ require_once(__ROOT__ . 'components/Main.php');
+ try {
+-    echo '<pre>'; // TODO removal!
+     $app = new Main();
+     $app->run();
+ } catch (Exception $exception) {

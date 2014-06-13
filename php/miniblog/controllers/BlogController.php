@@ -1,11 +1,13 @@
 <?php
 require_once(__ROOT__ . 'components/BaseController.php');
+require_once(__ROOT__ . 'views/BlogView.php');
 
 class BlogController extends BaseController
 {
     public function defaultAction()
     {
-        print_r($this->getArguments());
+        $defaultView = new BlogView();
+        $defaultView->render();
     }
 
 }
