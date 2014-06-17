@@ -13,11 +13,11 @@ class Main extends Component
         if (self::$db instanceof mysqli) {
             return self::$db;
         } else {
-            self::$db = new mysqli('localhost', 'root', 'password', ''); // TODO add db params
+            self::$db = new mysqli('localhost', 'root', 'password', 'test'); // TODO add db params
             if (self::$db->mysqli_connect_error) {
-                echo 'FAIL' . '<br />';
-                return self::$db;
+                throw new ComponentException(self::$db->connect_errno . ': ' . self::$db->mysqli_connect_error);
             }
+            return self::$db;
         }
     }
 
