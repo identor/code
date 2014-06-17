@@ -6,6 +6,20 @@ class Main extends Component
 {
     private $activeController;
     private $activeAction;
+    private static $db;
+
+    public static function getDb()
+    {
+        if (self::$db instanceof mysqli) {
+            return self::$db;
+        } else {
+            self::$db = new mysqli('localhost', 'root', 'password', ''); // TODO add db params
+            if (self::$db->mysqli_connect_error) {
+                echo 'FAIL' . '<br />';
+                return self::$db;
+            }
+        }
+    }
 
     public function __construct()
     {
@@ -33,6 +47,8 @@ class Main extends Component
         } else {
             echo 'Function ' . $actionCall . ' Non-Existant' . PHP_EOL;
         }
+        self::getDb();
+        self::getDb();
         echo 'Success...' . PHP_EOL;
     }
 }
