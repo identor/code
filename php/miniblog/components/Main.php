@@ -1,6 +1,7 @@
 <?php
 require_once(__ROOT__ . 'components/Component.php');
 require_once(__ROOT__ . 'controllers/BlogController.php');
+require_once(__ROOT__ . 'models/Blog.php');
 
 class Main extends Component
 {
@@ -47,8 +48,6 @@ class Main extends Component
         } else {
             echo 'Function ' . $actionCall . ' Non-Existant' . PHP_EOL;
         }
-        self::getDb();
-        self::getDb();
         echo 'Success...' . PHP_EOL;
     }
 }

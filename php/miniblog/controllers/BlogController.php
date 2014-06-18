@@ -9,5 +9,4 @@ class BlogController extends BaseController
         $defaultView = new BlogView();
         $defaultView->render();
     }
-
 }
