@@ -22,7 +22,7 @@ class BaseView extends Component
     public function prependRenderData($data)
     {
         if ($this->renderData === null) {
-            $his->renderData = $data;
+            $this->renderData = $data;
         } else {
             $this->renderData = $data . $this->renderData;
         }
