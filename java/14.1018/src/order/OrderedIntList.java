@@ -14,6 +14,9 @@ public class OrderedIntList {
 		return this.list;
 	}
 	
+	/*
+	 * Tests
+	 */
 	public static void main(String[] args) {
 		OrderedIntList oil = new OrderedIntList(1, 3, 4, 5);
 		System.out.printf("class: %s%n", oil.list.getClass());
