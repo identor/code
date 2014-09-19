@@ -35,7 +35,10 @@ public class OrderedIntListUtility {
 		final int NOT_FOUND = -1;
 		HashSet<Integer> set = new HashSet<Integer>();
 		for (Integer i: sublist.getList()) {
-			set.add(list.getList().indexOf(i));
+			for (int j = 0; j < list.getList().size(); j++) {
+				int occurence = list.getList().get(j) == i ? j : -1;
+                set.add(occurence);
+			}
 		}
 		set.remove(NOT_FOUND);
 		return toIntArray(set);
@@ -49,7 +52,7 @@ public class OrderedIntListUtility {
 		OrderedIntList list2 = new OrderedIntList(10, 3, 3, 3, 3, 4, 5);
 		OrderedIntList list3 = new OrderedIntList(1, 3, 40, 5);
 		OrderedIntList commonList = common(list1, list2, list3);
-		int[] subsequence = findSubsequenceIndices(list1, list2); 
+		int[] subsequence = findSubsequenceIndices(list1, list3); 
 		System.out.printf("nums: %s%n", commonList.getList());
 		System.out.printf("indices: %s%n",	Arrays.toString(subsequence));
 	}
