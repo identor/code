@@ -1,7 +1,6 @@
 var csvparser = require('csv-parse');
 var fs = require('fs');
 var camelCase = require('camel-case');
-var filesdir = process.argv[2];
 
 function formatFields(fieldFormat, data) {
   for (var i in fieldFormat) {
@@ -30,8 +29,9 @@ function callsProcessedJson(csvFilePath, options, callback) {
   fs.createReadStream(csvFilePath).pipe(parser);
   parser.on('data', function (data) {
     for (var key in data) {
-      // Note: Always a string... if empty ignore, keep the database clean
-      // of empty attributes.
+      /* Note: Always a string... if empty ignore, keep the database clean
+       * of empty attributes.
+       */
       if (!!data[key]) {
         data[camelCase(key)] = data[key];
       }
@@ -47,13 +47,14 @@ function callsProcessedJson(csvFilePath, options, callback) {
     result.push(data);
   });
   parser.on('end', function () {
-    console.log('finished @', (Date.now()-start) / 1000, 'sec/s');
+    console.log('finished creating ls records @',
+                (Date.now()-start) / 1000, 'sec/s');
     console.log('data size:', result.length);
     callback(result);
   });
 }
 
-function isEnhancedCallProcessed(data) {
+function isECPScore(data) {
   return !!data['elsScorerName'];
 }
 
@@ -63,51 +64,69 @@ function storeCallsProcessed(pathToCsv, finished) {
     if (err) {
       console.log('Database connection error.');
     }
-    var upsertedScores = 0;
-    var updateDbRecords = function (indx, scores) {
-      var selector = { _id: scores[indx]._id };
-      var opts = { upsert: true };
-      var updated = function (err, data) {
-        upsertedScores++;
-        if (err) {
-          console.log(err.message);
-          console.log('Record already uploaded...')
-        }
-        if (upsertedScores === scores.length) {
-          console.log('ELS file successfully uploaded!');
-          return db.close();
-        }
+    var executeExitScripts = function() {
+      if (finished && typeof(finished) == 'function') finished.call();
+      return db.close();
+    }
+    /* A safer but slower method of inserting scores. */
+    var individuallyUpsertScores = function (scores) {
+      var upsertedScores = 0;
+      var updateDbRecords = function (index, scores) {
+        var selector = { _id: scores[index]._id };
+        var opts = { upsert: true };
+        var update = { $set: scores[index] };
+        var updated = function (err, data) {
+          upsertedScores++;
+          if (err) {
+            console.log(err.message);
+            if (err.code === 11000) console.log('Record already uploaded...');
+          }
+          if (upsertedScores === scores.length) {
+            console.log('upserted @', (Date.now()-start) / 1000, 'sec/s');
+            executeExitScripts();
+          }
+        };
+        db.collection('score').update(selector, update, opts, updated);
       };
-      db.collection('score').update(selector, scores[indx], opts, updated);
+      for (var i = 0; i < scores.length; i++) {
+        updateDbRecords(i, scores);
+      }
+    };
+    var checkIfUpdatable = function (duplicate, cb) {
+      var collection = db.collection('score');
+      var selector = { _id: duplicate._id };
+      collection.findOne(selector, function (err, doc) {
+        if (err) console.log(err);
+        cb(!!(isECPScore(doc) ^ isECPScore(duplicate)));
+      });
     };
     var insertScores = function (scores) {
       if (scores.length < 1) {
         console.log('Nothing to process...', pathToCsv);
-        db.close();
-        return;
+        executeExitScripts();
       }
       db.collection('score').insert(scores, function (err, data) {
-        console.log('Processing file:', pathToCsv);
         if (err) {
-          console.error(err.code);
           var DUP_CODE = 11000
           if (err.code === DUP_CODE) {
-            var insertData = err.toJSON().op;
-            if (isEnhancedCallProcessed(insertData)) {
-              for (var i = 0; i < scores.length; i++) {
-                updateDbRecords(i, scores);
+            console.log('Duplicate found... executing fallback.');
+            var duplicate = err.toJSON().op;
+            checkIfUpdatable(duplicate, function updateScores(updatable) {
+              if (!updatable) {
+                console.log('These Scores are already uploaded!');
+                console.log('exited @', (Date.now()-start) / 1000, 'sec/s');
+                executeExitScripts();
+              } else {
+                individuallyUpsertScores(scores);
               }
-            } else {
-              console.log('Scores already uploaded!');
-              db.close();
-            }
+            });
           } else {
             console.log('Closing db...', err.message);
-            db.close();
+            executeExitScripts();
           }
         } else {
           console.log('inserted @', (Date.now()-start) / 1000, 'sec/s');
-          db.close();
+          executeExitScripts();
         }
       });
     };
@@ -126,18 +145,19 @@ function storeCallsProcessed(pathToCsv, finished) {
       ]
     }
     //db.collection('score').drop(function() {
+      console.log('Processing file:', pathToCsv);
       var scores = callsProcessedJson(pathToCsv, options, insertScores);
     //});
   });
 }
 
 (function () {
-  //var dir = '/home/irvin/Documents/callsprocessed/othersources/January 2015/';
-  //fs.readdir(dir, function (err, files) {
-    //for (var i = 0; i < files.length; i++) {
-      //storeCallsProcessed(dir + files[i]);
-    //}
-  //});
-  var file = process.argv[2];
-  storeCallsProcessed(file);
+  var filesdir = process.argv[2];
+  fs.readdir(filesdir, function (err, files) {
+    for (var i = 0; i < files.length; i++) {
+      storeCallsProcessed(filesdir + files[i]);
+    }
+  });
+  //var file = process.argv[2];
+  //storeCallsProcessed(file);
 })();
