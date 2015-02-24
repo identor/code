@@ -6,6 +6,7 @@ var crypto = require('crypto');
 function formatFields(fieldFormat, data) {
   for (var i in fieldFormat) {
     var field = fieldFormat[i].name;
+    if (!data[field]) continue;
     switch(fieldFormat[i].type) {
       case 'Number':
         if (!data[field]) break;
