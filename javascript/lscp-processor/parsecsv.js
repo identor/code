@@ -275,3 +275,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
     storeCallsProcessedToMongo(file, db);
   });
 })();
+
+module.exports = {
+  createCallsProcessedObject: createCallsProcessedObject
+};
