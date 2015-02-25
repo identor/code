@@ -70,10 +70,9 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
   var INSERT_WEIRD_DUPLICATE = 'Weird Duplicate Encountered';
   var ERROR = 'error';
   var checkIfUpdatable = function (duplicate, cb) {
-    var score = db.collection('scores');
-    var weirdScores = db.collection('weirdScores');
+    var scores = db.collection('scores');
     var selector = { _id: duplicate._id };
-    score.findOne(selector, function (err, score) {
+    scores.findOne(selector, function (err, score) {
       if (err) {
         // give access to the callback for the err variable
         ERROR = err;
@@ -96,7 +95,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
       if (sameShasum) {
         return cb(DONT_INSERT_DUPLICATE);
       }
-      weirdScores.findOne({ _id: dupHash }, function (err, weird) {
+      scores.findOne({ _id: dupHash }, function (err, weird) {
         if (err) {
           console.log(err);
           ERROR = err;
@@ -158,7 +157,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
           }
           score['callId'] = score['_id'];
           score['_id'] = shasum.digest('hex');
-          db.collection('weirdScores').insert(score, function (err, data) {
+          db.collection('scores').insert(score, function (err, data) {
             if (err) console.log(err);
             insertedScores++;
             promptFinished();

@@ -74,7 +74,7 @@ describe('MongoDB data store Tests.', function () {
     };
     scpm(ecpOne, mongodb, afterInsert);
   });
-  it('should not store objects contained in' + ecpOne + ' twice.', function (done) {
+  it('should not store objects contained in ' + ecpOne + ' twice.', function (done) {
     var insertCount = 0;
     var afterInsert = function () {
       ++insertCount;
@@ -90,12 +90,33 @@ describe('MongoDB data store Tests.', function () {
   });
   it('should store a record in weirdScores.', function (done) {
     var afterInsert = function () {
-      weirdScores.count(function (err, count) {
+      var selector = { _id: 'baed5aa21a92467021b0faf82837e9eaf93c4509' };
+      scores.findOne(selector,
+          function (err, obj) {
         if (err) throw err;
-        assert.equal(1, count);
+        assert.equal(obj._id, selector._id);
         return done();
       });
     };
+    scpm(ecpTwo, mongodb, afterInsert);
+  });
+  it('should not store objects twice.', function (done) {
+    this.timeout(0);
+    var insertCount = 0;
+    var afterInsert = function () {
+      ++insertCount;
+      if (insertCount === 2) {
+        scores.count(function (err, count) {
+          if (err) throw err;
+          assert.equal(3, 3);
+        });
+      }
+      scores.count(function (err, count) {
+        if (err) throw err;
+        assert.equal(count, 3);
+      });
+    };
+    scpm(ecpTwo, mongodb, afterInsert);
     scpm(ecpTwo, mongodb, afterInsert);
   });
 });
