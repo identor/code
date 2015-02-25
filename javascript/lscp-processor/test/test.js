@@ -39,7 +39,6 @@ describe('MongoDB data store Tests.', function () {
   var ecpOne = 'test/ECPwiththirtyelements.csv';
   var ecpTwo = 'test/ECPwithconflict.csv';
   var scores;
-  var weirdScores;
   var mongodb;
   //var lcpOne = '';
   //var lcpTwo = '';
@@ -57,7 +56,6 @@ describe('MongoDB data store Tests.', function () {
       connectedToDb = true;
       mongodb = db;
       scores = mongodb.collection('scores');
-      weirdScores = mongodb.collection('weirdScores');
       mongodb.dropDatabase(function (err, result) {
         droppedDb = true;
         isProcessingFinished();
@@ -108,15 +106,16 @@ describe('MongoDB data store Tests.', function () {
       if (insertCount === 2) {
         scores.count(function (err, count) {
           if (err) throw err;
-          assert.equal(3, 3);
+          assert.equal(count, 3);
+          return done();
         });
       }
       scores.count(function (err, count) {
         if (err) throw err;
         assert.equal(count, 3);
+        scpm(ecpTwo, mongodb, afterInsert);
       });
     };
-    scpm(ecpTwo, mongodb, afterInsert);
     scpm(ecpTwo, mongodb, afterInsert);
   });
 });

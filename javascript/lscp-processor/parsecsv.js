@@ -196,7 +196,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
     }
   };
   var insertScores = function (scores) {
-    scores.filter(function (element) {
+    scores = scores.filter(function (element) {
       // remove elements without an _id specified
       return !!element._id
     });
