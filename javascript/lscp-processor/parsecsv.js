@@ -64,7 +64,6 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
   var db = mongodb;
   var executeExitScripts = function() {
     if (finished && typeof(finished) == 'function') finished.call();
-    return db.close();
   }
   var SAFE_TO_UPSERT = 'Safe upsert';
   var DONT_INSERT_DUPLICATE = 'Dont insert, dulicated';
@@ -180,7 +179,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
         if (err) {
           if (err.code === 11000) {
             insertedScores--;
-            console.log('Record already uploaded...');
+            console.log('Record already uploaded... inserting to weirdScores.');
             var supInsertionFallBack = function (status) {
               insertionFallBack(scores[index], status);
             };
@@ -198,6 +197,10 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
     }
   };
   var insertScores = function (scores) {
+    scores.filter(function (element) {
+      // remove elements without an _id specified
+      return !!element._id
+    });
     if (scores.length < 1) {
       console.log('Nothing to process...', pathToCsv);
       executeExitScripts();
@@ -259,23 +262,7 @@ function storeCallsProcessedToMongo(pathToCsv, mongodb, finished) {
   var scores = createCallsProcessedObject(pathToCsv, options, insertScores);
 }
 
-(function () {
-  //var filesdir = process.argv[2];
-  //fs.readdir(filesdir, function (err, files) {
-    //for (var i = 0; i < files.length; i++) {
-      //storeCallsProcessed(filesdir + files[i]);
-    //}
-  //});
-  var MongoClient = require('mongodb').MongoClient;
-  MongoClient.connect('mongodb://localhost/test', function (err, db) {
-    if (err) {
-      console.log('Database connection error.');
-    }
-    var file = process.argv[2];
-    storeCallsProcessedToMongo(file, db);
-  });
-})();
-
 module.exports = {
-  createCallsProcessedObject: createCallsProcessedObject
+  createCallsProcessedObject: createCallsProcessedObject,
+  storeCallsProcessedToMongo: storeCallsProcessedToMongo
 };
