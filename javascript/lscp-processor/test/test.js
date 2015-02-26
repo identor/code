@@ -1,6 +1,6 @@
 var assert = require('assert');
-var ccpo = require('../parsecsv.js').createCallsProcessedObject;
-var scpm = require('../parsecsv.js').storeCallsProcessedToMongo;
+var ccpo = require('../lib').createCallsProcessedObject;
+var scpm = require('../lib').storeCallsProcessedToMongo;
 var MongoClient = require('mongodb').MongoClient;
 
 var options = {
