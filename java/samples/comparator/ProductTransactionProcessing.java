@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.ArrayList;
 
 public class ProductTransactionProcessing {
@@ -6,7 +5,7 @@ public class ProductTransactionProcessing {
     public static void main(String[] args) throws Exception {
 
         java.io.File file = new java.io.File("january-input.txt");
-        Scanner input = new Scanner(file);
+        java.util.Scanner input = new java.util.Scanner(file);
 
         int mPC = input.nextInt();
         double TSR = 0;
