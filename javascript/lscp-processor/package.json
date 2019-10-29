@@ -16,10 +16,10 @@
   "license": "ISC",
   "dependencies": {
     "camel-case": "^1.1.1",
-    "csv-parse": "0.0.9",
-    "mongodb": "^1.4.31"
+    "csv-parse": "^4.6.5",
+    "mongodb": "^3.3.3"
   },
   "devDependencies": {
-    "mocha": "^2.1.0"
+    "mocha": "^6.2.2"
   }
 }
