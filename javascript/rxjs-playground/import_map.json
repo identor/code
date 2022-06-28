@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "rxjs": "https://esm.sh/v86/rxjs"
+  }
+}
